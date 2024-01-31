@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  elasticsearch-master:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: elasticsearch-master
+    environment:
+      - node.name=master
+      - discovery.seed_hosts=elasticsearch-failover1,elasticsearch-failover2
+      - cluster.initial_master_nodes=master
+    ports:
+      - "9200:9200"
+    networks:
+      - es-net
+
+  elasticsearch-failover1:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: elasticsearch-failover1
+    environment:
+      - node.name=failover1
+      - discovery.seed_hosts=elasticsearch-master,elasticsearch-failover2
+      - cluster.initial_master_nodes=master
+    networks:
+      - es-net
+
+  elasticsearch-failover2:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: elasticsearch-failover2
+    environment:
+      - node.name=failover2
+      - discovery.seed_hosts=elasticsearch-master,elasticsearch-failover1
+      - cluster.initial_master_nodes=master
+    networks:
+      - es-net
+
+networks:
+  es-net:
+    driver: bridge
