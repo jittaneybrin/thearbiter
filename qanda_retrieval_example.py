@@ -1,3 +1,5 @@
+import settings
+
 #for html requests and html parsing
 import requests
 from bs4 import BeautifulSoup
@@ -16,13 +18,10 @@ import datetime
 TEXT_CHUNK_SIZE = 500
 CHUNK_OVERLAP_SIZE = 100
 
-ELASTIC_PASSWORD = "RrfPwkaofSx_1m6rnmWd"
-CERT_FINGERPRINT = "3ad62a2603d0fe2ecb51038ae775f0bc015e495984ce044ffe54f1722355a421"
-
 client = Elasticsearch(
     "https://localhost:9200",
-    ssl_assert_fingerprint=CERT_FINGERPRINT,
-    basic_auth=("elastic", ELASTIC_PASSWORD)
+    ssl_assert_fingerprint = settings.CERT_FINGERPRINT,
+    basic_auth=("elastic", settings.ELASTIC_PASSWORD)
 )
 
 # Grab wikipedia html content from source url
@@ -67,25 +66,6 @@ def chunk_paragraph(paragraph, chunk_size, overlap_size):
             text_remaining = text_remaining[chunk_size-overlap_size:]
     return chunks
 
-def initialize_embeddings_model():
-    # Define the path to the pre-trained model you want to use
-    modelPath = "sentence-transformers/all-MiniLM-l6-v2"
-
-    # Create a dictionary with model configuration options, specifying to use the CPU for computations
-    model_kwargs = {'device': 'cpu'}
-
-    # Create a dictionary with encoding options, specifically setting 'normalize_embeddings' to False
-    encode_kwargs = {'normalize_embeddings': False}
-
-    # Initialize an instance of HuggingFaceEmbeddings with the specified parameters
-    embeddings = HuggingFaceEmbeddings(
-        model_name=modelPath,     # Provide the pre-trained model's path
-        model_kwargs=model_kwargs, # Pass the model configuration options
-        encode_kwargs=encode_kwargs # Pass the encoding options
-    )
-
-    return embeddings
-
 
 # URL of the Wikipedia page
 url = 'https://en.wikipedia.org/wiki/Abraham_Lincoln'
@@ -103,23 +83,23 @@ chunks = paragraphs
 # for p in paragraphs:
 #     chunks.extend(chunk_paragraph(p, TEXT_CHUNK_SIZE, CHUNK_OVERLAP_SIZE))
 
+def initialize_embeddings_model():
+    # Define the path to the pre-trained model you want to use
+    modelPath = "sentence-transformers/all-MiniLM-l6-v2"
 
-#create documents for ElasticSearch
-docs_for_elasticsearch = []
-for chunk in chunks:
-    docs_for_elasticsearch.append(
-        {
-        '_index': 'abe2',
-        '_source': {
-            'game': 'abe',
-            'text': chunk,
-            'timestamp': datetime.datetime.now()
-        }})
-    
-#load documents into ElasticSearch
-#ONLY DO THIS ONCE!!
-response = bulk(client, docs_for_elasticsearch)
+    # Create a dictionary with model configuration options, specifying to use the CPU for computations
+    model_kwargs = {'device': 'cpu'}
 
+    # Create a dictionary with encoding options, specifically setting 'normalize_embeddings' to False
+    encode_kwargs = {'normalize_embeddings': False}
+
+    # Initialize an instance of HuggingFaceEmbeddings with the specified parameters
+    embeddings = HuggingFaceEmbeddings(
+        model_name=modelPath,     # Provide the pre-trained model's path
+        model_kwargs=model_kwargs, # Pass the model configuration options
+        encode_kwargs=encode_kwargs # Pass the encoding options
+    )
+    return embeddings
 
 #create documents for Faiss
 metadata = {
@@ -139,7 +119,6 @@ db = FAISS.from_documents(docs_for_faiss, embeddings_model)
 #Q and A Session
 while True:
     user_question = input("Ask a question about Abraham Lincoln: \n\n")
-    
     #Grab the relevant material using FAISS
     searchDocs = db.similarity_search(user_question)
     #print the two most relevant pieces of text:

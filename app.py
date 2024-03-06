@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, jsonify
 from elasticsearch import Elasticsearch
 from openai import OpenAI
 
+
 app = Flask(__name__)
 
 ELASTIC_PASSWORD = "06Tv9FUtTxQ43sdNuSdU"
@@ -24,15 +25,15 @@ def get_completion_from_messages(prompt):
         messages=[
             {
         "role": "system",
-        "content": "You are a helpful assistant."
+        "content": "You are a master of playing board games. Your job is to rephrase a paragraph that in a tone that is friendly, helpful, bubbly, and human-like."
         },
         {
         "role": "user",
-        "content": prompt
+        "content": "Stalemate is a situation in chess where the player whose turn it is to move is not in check and has no legal move. Stalemate results in a draw. During the endgame, stalemate is a resource that can enable the player with the inferior position to draw the game rather than lose. In more complex positions, stalemate is much rarer, usually taking the form of a swindle that succeeds only if the superior side is inattentive. Stalemate is also a common theme in endgame studies and other chess problems."
         }
         ],
         model="gpt-3.5-turbo",
-        max_tokens=100
+        max_tokens=500
     )
     return chat_completion.choices[0].message.content
 
