@@ -10,7 +10,6 @@ import embs as embs
 #Creates a new index in Elastic search
 #and uploads chunks of board game manual, with corresponding vectors
 def new_game_index(es_client, index, game_name, chunks):
-
     if es_client.indices.exists(index=index):
         raise Exception(f"Cannot create index. Index '{index}' already created.")
 
@@ -50,3 +49,39 @@ def new_game_index(es_client, index, game_name, chunks):
     
     response = bulk(es_client, docs_for_elasticsearch)
 
+
+#queries elastic search index for relevant text chunks
+def query_elastic_search_by_index(es_client, index, user_question):
+    embedded_question = embs.embed_documents([user_question])[0]
+
+    #dense vector search (essentially semantic search)
+    search = {
+    "knn": {
+        "field": "my_vector",
+        "query_vector": embedded_question,
+        "k": 3,
+        "num_candidates": 100
+    },
+    "fields": [ "text" ]
+    }
+
+    #Simple match query:
+    # query = {
+    #     "query": {
+    #         "match": {
+    #         "text": {
+    #             "query": user_question,
+    #             "minimum_should_match": "10%"
+    #         }
+    #         }
+    #     }}
+
+    response = es_client.search(index=index, body=search)
+    hits = response['hits']['hits']
+    contexts = []
+    for hit in hits: 
+        context = hit['_source']['text']
+        print(context)
+        contexts.append(context)
+    
+    return contexts
