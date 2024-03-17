@@ -1,12 +1,14 @@
 from flask import Flask, request, render_template, jsonify
+from flask_cors import CORS
 from elasticsearch import Elasticsearch
 from openai import OpenAI
 
 
 app = Flask(__name__)
+CORS(app)
 
-ELASTIC_PASSWORD = "06Tv9FUtTxQ43sdNuSdU"
-CERT_FINGERPRINT = "e01bcdaa455cbab53bd08776aa99a3263fd8fa6c8b18d933972e936408869d09"
+ELASTIC_PASSWORD = "-2A0m7xn4sDU*1gdBpKR"
+CERT_FINGERPRINT = "cbb3569b3161deaa711343e4d703d281df69d8107718180dd3d290a6fd848c82"
 MAX_SIZE = 15
 
 es = Elasticsearch(
@@ -16,7 +18,7 @@ es = Elasticsearch(
 )
 
 client = OpenAI(
-    api_key="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"
+    api_key="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"
 )
 
 def get_completion_from_messages(prompt):
@@ -33,23 +35,27 @@ def get_completion_from_messages(prompt):
         }
         ],
         model="gpt-3.5-turbo",
-        max_tokens=500
+        max_tokens=10
     )
     return chat_completion.choices[0].message.content
 
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return "hi"
 
 @app.route("/gptapi", methods=['GET', 'POST'])
 def gptai():
     print("hi")
+    print(request)
     if request.method == 'POST': 
         print('POST entered') 
-        prompt = request.form['prompt'] 
+        prompt = ''
         response = get_completion_from_messages(prompt) 
-        return jsonify({'response': response}) 
+        answer = jsonify({'response': response}) 
+        answer.headers.add('Access-Control-Allow-Origin', '*')
+        print(answer)
+        return answer
     return render_template('gptapi.html')
 
 # @app.route("/search")
