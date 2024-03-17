@@ -51,8 +51,9 @@ def new_game_index(es_client, index, game_name, chunks):
 
 
 #queries elastic search index for relevant text chunks
-def query_elastic_search_by_index(es_client, index, user_question):
-    embedded_question = embs.embed_documents([user_question])[0]
+def query_elastic_search_by_index(es_client, index, user_question):    
+    embeddings_model = embs.initialize_embeddings_model()    
+    embedded_question = embeddings_model.embed_documents([user_question])[0]
 
     #dense vector search (essentially semantic search)
     search = {
