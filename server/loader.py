@@ -88,6 +88,5 @@ def load_chess():
     except Exception as e:
         print(f"Could not create the {game} index. Exception: {e}")
 
-
-load_chess()
-
+#load_chess()
+#elastic_search.query_elastic_search_by_index(client, "chess_index10", "what is a stalemate")
