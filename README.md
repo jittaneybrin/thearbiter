@@ -6,3 +6,4 @@ board game question answerer
 -Brittaney Jin
 -Matt LeHoty
 -Jake Sutter
+-Samridhi Kaushik
