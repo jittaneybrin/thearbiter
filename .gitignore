@@ -1,2 +1,4 @@
-node_modules/**
 venv/**
+server/settings.py
+*/node_modules/
+./client/node_modules/*

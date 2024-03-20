@@ -23,7 +23,7 @@ chess_url = 'https://en.wikipedia.org/wiki/Rules_of_chess'
 
 client = Elasticsearch(
     "https://localhost:9200",
-    ssl_assert_fingerprint= settings.CERT_FINGERPRINT,
+    ssl_assert_fingerprint = settings.CERT_FINGERPRINT,
     basic_auth=("elastic", settings.ELASTIC_PASSWORD)
 )
 
@@ -88,5 +88,6 @@ def load_chess():
     except Exception as e:
         print(f"Could not create the {game} index. Exception: {e}")
 
-#load_chess()
-#elastic_search.query_elastic_search_by_index(client, "chess_index10", "what is a stalemate")
+# load_chess()
+# print(elastic_search.query_elastic_search_by_index(client, "chess_index10", "what is a stalemate"))
+
