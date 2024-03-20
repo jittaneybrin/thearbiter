@@ -4,17 +4,12 @@ from elasticsearch import Elasticsearch
 from openai import OpenAI
 from settings import CERT_FINGERPRINT, ELASTIC_PASSWORD
 from gpt import *
-from elastic_search import *
+import elastic_search as elastic_search
 
 app = Flask(__name__)
 CORS(app)
 
-es_client = Elasticsearch(
-    "https://127.0.0.1:9200",
-    ssl_assert_fingerprint = CERT_FINGERPRINT,
-    basic_auth=("elastic", ELASTIC_PASSWORD)
-)
-
+es_client = elastic_search.get_client()
 
 @app.route("/getAnswer", methods= ['POST'])
 def getAnswer():
@@ -22,7 +17,7 @@ def getAnswer():
         print('get answer entered') 
         userQuestion = request.args.get('prompt')
         index = 'chess_index10'
-        response = query_elastic_search_by_index(es_client, index, userQuestion)
+        response = elastic_search.query_elastic_search_by_index(es_client, index, userQuestion)
         finalResponse = get_completion_from_messages(response) 
         answer = jsonify({'response': finalResponse}) 
         answer.headers.add('Access-Control-Allow-Origin', '*')

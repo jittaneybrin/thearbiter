@@ -1,4 +1,4 @@
-import settings
+import server.settings as settings
 
 #for html requests and html parsing
 import requests
