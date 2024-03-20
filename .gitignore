@@ -2,3 +2,4 @@ venv/**
 server/settings.py
 */node_modules/
 ./client/node_modules/*
+*.pyc 

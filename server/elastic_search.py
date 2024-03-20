@@ -7,6 +7,18 @@ from elasticsearch.helpers import bulk
 #embeddings
 import embs as embs
 
+import settings as settings
+
+#instantiate and return an elastic search client
+def get_client():
+    client = Elasticsearch(
+        "https://localhost:9200",
+        ssl_assert_fingerprint=settings.CERT_FINGERPRINT,
+        basic_auth=("elastic", settings.ELASTIC_PASSWORD)
+    )
+    
+    return client 
+
 #Creates a new index in Elastic search
 #and uploads chunks of board game manual, with corresponding vectors
 def new_game_index(es_client, index, game_name, chunks):
