@@ -1,4 +1,5 @@
 import { Box, TextField } from "@mui/material";
+import Chat from "./TextBubbles";
 import theme from "./theme";
 
 export function TextEntry() {
@@ -11,12 +12,7 @@ export function TextEntry() {
       alignItems="center
       "
     >
-      <TextField
-        fullWidth
-        label="Ask Me A Question!"
-        variant="outlined"
-        color="secondary"
-      ></TextField>
+      <Chat />
     </Box>
   );
 }

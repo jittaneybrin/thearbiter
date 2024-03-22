@@ -1,9 +1,10 @@
-import { Box, Grid } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import theme from "./theme";
 import { Sidebar } from "./Sidebar";
 import { TextEntry } from "./TextEntry";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { Logo } from "./Logo";
 
 export function Background() {
   const [message, setMessage] = useState("");
@@ -38,25 +39,47 @@ export function Background() {
             height: "100vh",
           }}
         >
-          {message}
           <Box
             sx={{
               backgroundColor: theme.palette.secondary.light,
               height: "93%",
-              width: "85%",
+              width: "93%",
               borderRadius: "20px",
+              marginTop: "3.5%",
+              marginLeft: "3.5%",
+              display: "flex",
+              flexDirection: "column",
             }}
-            marginTop="2.5%"
-            marginLeft="7.5%"
-            display="flex"
-            alignItems="end"
-            justifyContent="center"
           >
             <Box
-              width="70%"
-              justifyContent="center"
-              display="flex"
-              paddingBottom="2%"
+              sx={{
+                height: "10%",
+                padding: "10px",
+                fontWeight: "500",
+              }}
+            >
+              The Arbiter
+            </Box>
+
+            <Box
+              sx={{
+                height: "20%",
+                paddingTop: "2%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Logo />
+            </Box>
+            <Box
+              sx={{
+                height: "80%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "end",
+                paddingBottom: "2%",
+              }}
             >
               <TextEntry />
             </Box>
