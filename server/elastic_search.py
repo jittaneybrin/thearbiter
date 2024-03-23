@@ -81,7 +81,7 @@ def query_elastic_search_by_index(es_client, index, user_question):
 
     #dense vector search (essentially semantic search)
     response = es_client.search(
-        index="root_index",
+        index=index,
         knn={
             "field": "content_vector",
             "query_vector": embedded_question,
