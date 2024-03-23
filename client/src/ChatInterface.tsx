@@ -1,8 +1,7 @@
-import { Box, TextField } from "@mui/material";
+import { Box } from "@mui/material";
 import Chat from "./TextBubbles";
-import theme from "./theme";
 
-export function TextEntry() {
+export function ChatInterface() {
   return (
     <Box
       sx={{

@@ -1,7 +1,7 @@
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import theme from "./theme";
 import { Sidebar } from "./Sidebar";
-import { TextEntry } from "./TextEntry";
+import { ChatInterface } from "./ChatInterface";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Logo } from "./Logo";
@@ -81,7 +81,7 @@ export function Background() {
                 paddingBottom: "2%",
               }}
             >
-              <TextEntry />
+              <ChatInterface />
             </Box>
           </Box>
         </Box>
