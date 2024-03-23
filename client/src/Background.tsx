@@ -9,25 +9,6 @@ import { Logo } from "./Logo";
 export function Background() {
   const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    // Make a GET request to the Flask backend
-    axios
-      .post("http://127.0.0.1:5000/gptapi", {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
-        },
-        responseType: "json",
-      })
-      .then((response) => {
-        console.log(response);
-        setMessage(response.data.response);
-      })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
-  }, []);
-
   return (
     <Grid container spacing={0}>
       <Grid xs={1.5}>
