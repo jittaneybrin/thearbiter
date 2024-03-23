@@ -1,6 +1,7 @@
-import { Box, Icon, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { ToggleButton, ToggleButtonGroup } from "@mui/material";
 import React from "react";
-import theme from "./theme";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 export function FileSelectBox() {
   const [alignment, setAlignment] = React.useState("web");
@@ -26,7 +27,9 @@ export function FileSelectBox() {
       <ToggleButton value="chess">Chess</ToggleButton>
       <ToggleButton value="monopoly">Monopoly</ToggleButton>
       <ToggleButton value="root">Root</ToggleButton>
-      <ToggleButton value="add">Add Icon</ToggleButton>
+      <ToggleButton value="add">
+        <FontAwesomeIcon icon={faPlus} />
+      </ToggleButton>
     </ToggleButtonGroup>
   );
 }

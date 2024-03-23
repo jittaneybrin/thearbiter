@@ -1,6 +1,5 @@
 import { Box } from "@mui/material";
 import { FileSelectBox } from "./FileSelectBox";
-import theme from "./theme";
 
 export function Sidebar() {
   return (

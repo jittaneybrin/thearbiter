@@ -1,7 +1,6 @@
-import ReactDOM from 'react-dom/client';
+import ReactDOM from "react-dom/client";
 import "./index.css";
 import { ThemeProvider } from "@mui/material";
-import * as React from "react";
 import theme from "./theme";
 import { Layout } from "./Layout";
 
