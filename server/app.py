@@ -18,7 +18,9 @@ def getAnswer():
         userQuestion = request.args.get('prompt')
         index = 'chess_index10'
         response = elastic_search.query_elastic_search_by_index(es_client, index, userQuestion)
+        print("response gathered from elasticsearch")
         finalResponse = get_completion_from_messages(response) 
+        print("response from gpt:", finalResponse)
         answer = jsonify({'response': finalResponse}) 
         answer.headers.add('Access-Control-Allow-Origin', '*')
         print(answer)
