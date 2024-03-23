@@ -1,15 +1,15 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from gpt import *
-import elastic_search as elastic_search
+# import elastic_search as elastic_search
 from werkzeug.utils import secure_filename
 
 
 app = Flask(__name__)
 CORS(app)
 
-es_client = elastic_search.get_client()
-print(es_client.info())
+# es_client = elastic_search.get_client()
+# print(es_client.info())
 
 @app.route("/getAnswer", methods= ['POST'])
 def getAnswer():
@@ -37,9 +37,10 @@ def test():
 @app.route("/uploadPDF", methods= ['POST'])
 def uploadPDF():
    if request.method == 'POST':
-      print('upload pdf entered')
-      # file = request.files['the_file']
-      # file.save(f"/server/uploads/{secure_filename(file.filename)}")
+      file = request.files['the_file']
+
+      print("here is the file we wan to save:", file)
+      file.save(f"server/uploads/{secure_filename(file.filename)}")
 
       return 'upload pdf entered'
    else:
