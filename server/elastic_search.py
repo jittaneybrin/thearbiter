@@ -1,4 +1,6 @@
 import datetime
+from pypdf import PdfReader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 #ES
 from elasticsearch import Elasticsearch
@@ -17,49 +19,59 @@ def get_client():
         basic_auth=("elastic", settings.ELASTIC_PASSWORD)
     )
     
-    return client 
+    return client
 
-#Creates a new index in Elastic search
-#and uploads chunks of board game manual, with corresponding vectors
-def new_game_index(es_client, index, game_name, chunks):
-    if es_client.indices.exists(index=index):
-        raise Exception(f"Cannot create index. Index '{index}' already created.")
+def new_game_index(es_client, pdf_path):
+    reader = PdfReader(pdf_path)
 
-    properties = {
-        "my_vector": {
-        "type": "dense_vector",
-        "dims": 384,
-        "similarity": "dot_product",
-        "index": True
-        # "index_options": {
-        #     "type": "int8_hnsw"
-        # }
+    pdf_content = ""
+    for page in reader.pages:
+        text = page.extract_text()
+        pdf_content += text
+
+    text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+        chunk_size=512, chunk_overlap=256
+    )
+    docs = text_splitter.create_documents([pdf_content])
+
+    # Define the new elasticsearch index
+    mappings = {
+        "properties": {
+            "content": {
+                "type": "text"
+            },
+            "content_vector": {
+                "type": "dense_vector",
+                "dims": 384,
+                "index": "true",
+                "similarity": "cosine"
+            }
         }
     }
-    es_client.indices.create(index=index)
-    
-    es_client.indices.put_mapping(index=index, properties=properties)
 
-    #Set up text embedding model:
+    index = "index_" + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+
+    es_client.indices.create(index=index, mappings=mappings)
+
+    # Initialize the embeddings model
     embeddings_model = embs.initialize_embeddings_model()
+    # embeddings = embeddings_model.embed_documents(docs)
 
-    embeddings = embeddings_model.embed_documents(chunks)
-    text_embeddings = zip(chunks, embeddings)
+    # Bulk insert the documents into the index
+    operations = []
+    for doc in docs:
+        operations.append({"index": {"_index": index}})
+        doc_object = {
+            "content": doc.page_content,
+            # Transforming the title into an embedding using the model
+            "content_vector": embeddings_model.embed_documents([doc.page_content])[0]
+        }
+        operations.append(doc_object)
+    response = es_client.bulk(index="root_index", operations=operations, refresh=True)
 
-    #create documents for ElasticSearch
-    docs_for_elasticsearch = []
-    for text, embedding in text_embeddings:
-        doc = {
-            '_index': index,
-            '_source': {
-                'game': game_name,
-                'text': text,
-                'my_vector': embedding,
-                'timestamp': datetime.datetime.now()
-            }}
-        docs_for_elasticsearch.append(doc)
-    
-    response = bulk(es_client, docs_for_elasticsearch)
+    print(response)
+
+    return index
 
 
 #queries elastic search index for relevant text chunks
@@ -68,33 +80,25 @@ def query_elastic_search_by_index(es_client, index, user_question):
     embedded_question = embeddings_model.embed_documents([user_question])[0]
 
     #dense vector search (essentially semantic search)
-    search = {
-    "knn": {
-        "field": "my_vector",
-        "query_vector": embedded_question,
-        "k": 3,
-        "num_candidates": 100
-    },
-    "fields": [ "text" ]
-    }
+    response = es_client.search(
+        index="root_index",
+        knn={
+            "field": "content_vector",
+            "query_vector": embedded_question,
+            "k": 10,
+            "num_candidates": 100,
+        },
+    )
 
-    #Simple match query:
-    # query = {
-    #     "query": {
-    #         "match": {
-    #         "text": {
-    #             "query": user_question,
-    #             "minimum_should_match": "10%"
-    #         }
-    #         }
-    #     }}
+    # print("query results")
+    # print(response)
 
-    response = es_client.search(index=index, body=search)
     hits = response['hits']['hits']
-    contexts = []
-    for hit in hits: 
-        context = hit['_source']['text']
-        print(context)
-        contexts.append(context)
+    contexts = hits[0]['_source']['content']
+    # contexts = []
+    # for hit in hits: 
+    #     context = hit['_source']['context']
+    #     print(context)
+    #     contexts.append(context)
     
     return contexts

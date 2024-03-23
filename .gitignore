@@ -1,5 +1,3 @@
-venv/**
-server/settings.py
-*/node_modules/
-./client/node_modules/*
-*.pyc 
+.venv
+__pycache__/
+node_modules/
