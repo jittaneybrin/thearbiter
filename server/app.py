@@ -3,30 +3,52 @@ from flask_cors import CORS
 from gpt import *
 import elastic_search as elastic_search
 from werkzeug.utils import secure_filename
+from requests import request as req
+from json import dumps, loads
 
 
 app = Flask(__name__)
 CORS(app)
+
+appId = 't4KsGHvY'
+talkJSSecretKey = 'sk_test_hr35P6vuhJ5x7UVN8jqv3wB3WLIUX5DB'
+basePath = "https://api.talkjs.com"
+conversationId = "sample_conversation"
 
 es_client = elastic_search.get_client()
 print(es_client.info())
 
 @app.route("/getAnswer", methods= ['POST'])
 def getAnswer():
-   if request.method == 'POST':
-      print('get answer entered') 
-      userQuestion = request.args.get('prompt')
-      index = 'index_20240323020008'
+    print('get answer entered') 
+    if request.method == 'POST':
+      del request.json['createdAt']
+      userQuestion = request.json['data']['message']['text']
+      print(userQuestion)
+      index = 'index_20240323162803'
       context = elastic_search.query_elastic_search_by_index(es_client, index, userQuestion)
       print("response gathered from elasticsearch")
-      # print(context)
-      finalResponse = get_completion_from_messages(context, userQuestion) 
-      print("response from gpt:", finalResponse)
-      answer = jsonify({'response': finalResponse}) 
-      answer.headers.add('Access-Control-Allow-Origin', '*')
-      print(answer)
-      return answer
-   else:
+      answer = get_completion_from_messages(context, userQuestion) 
+      print("gpt api")
+
+      url = "https://api.talkjs.com/v1/t4KsGHvY/conversations/sample_conversation/messages"
+
+      payload = dumps([
+        {
+          "text": answer,
+          "type": "UserMessage",
+          "sender": "sample_user_sebastian"
+        }
+      ])
+      headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer sk_test_hr35P6vuhJ5x7UVN8jqv3wB3WLIUX5DB'
+      }
+
+      response = req("POST", url, headers=headers, data=payload)
+      print(response.text)
+      return response.text
+    else:
       print('error')
 
 @app.route("/test", methods= ['GET'])
