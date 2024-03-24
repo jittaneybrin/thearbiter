@@ -68,8 +68,8 @@ def new_game_index(es_client, pdf_path):
         }
         operations.append(doc_object)
     response = es_client.bulk(index="root_index", operations=operations, refresh=True)
-
-    print(response)
+    inserted = response["items"]
+    print(f"Created index {index} with {len(inserted)} documents")
 
     return index
 

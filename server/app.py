@@ -1,15 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from gpt import *
-# import elastic_search as elastic_search
+import elastic_search as elastic_search
 from werkzeug.utils import secure_filename
 from requests import request as req
 from json import dumps, loads
-import asyncio
-from threading import Thread
-import datetime
 
-loop = asyncio.get_event_loop()
+
 app = Flask(__name__)
 CORS(app)
 
@@ -22,6 +19,7 @@ conversationId = "sample_conversation"
 es_client = elastic_search.get_client()
 print(es_client.info())
 
+# TODO: Rearrange the organization of the code
 def getResponse(json): 
     del json['createdAt']
     userQuestion = json['data']['message']['text']
@@ -57,23 +55,29 @@ def getAnswer():
         getResponse(request.json)
       return '', 200
     else:
+      # TODO: Add error handling
       print('error')
 
 @app.route("/test", methods= ['GET'])
 def test():
-   index = elastic_search.new_game_index(es_client, 'server/root.pdf')
+   index = elastic_search.new_game_index(es_client, 'server/uploads/root.pdf')
    return index
 
 @app.route("/uploadPDF", methods= ['POST'])
 def uploadPDF():
    if request.method == 'POST':
       file = request.files['the_file']
+      print(f"User uploaded file: {secure_filename(file.filename)}")
 
-      print("here is the file we wan to save:", file)
       file.save(f"server/uploads/{secure_filename(file.filename)}")
 
-      return 'upload pdf entered'
+      index = elastic_search.new_game_index(es_client, f'server/uploads/{secure_filename(file.filename)}')
+
+      response = jsonify({"index": index})
+
+      return response
    else:
+      # TODO: Add error handling
       print('error')
      
 

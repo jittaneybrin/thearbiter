@@ -45,12 +45,13 @@ export function PdfUpload(props: PdfUploadComponentProps) {
         method: "POST",
         body: formData,
       })
-        .then((response) => {
-          if (response.ok) {
-            console.log("File uploaded successfully");
-          } else {
-            console.error("Failed to upload file");
-          }
+        // TODO: add error handling?
+        .then(res => res.json())
+        .then(json => {
+          let index = json.index;
+          // I don't know what's happening with textFieldValue, but it seems to be blank here.
+          // console.log(`Created game ${textFieldValue} with index ${index}`);
+          console.log(`Created index ${index}`);
         })
         .catch((error) => {
           console.error("Error uploading file:", error);
