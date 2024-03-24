@@ -9,6 +9,8 @@ import { Logo } from "./Logo";
 export function Background() {
   const [message, setMessage] = useState("");
 
+  const [uploadOpen, setUploadOpen] = useState(false);
+
   return (
     <Grid container spacing={0}>
       <Grid xs={1.5}>
