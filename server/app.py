@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from gpt import *
-import elastic_search as elastic_search
+# import elastic_search as elastic_search
 from werkzeug.utils import secure_filename
 from requests import request as req
 from json import dumps, loads
@@ -12,6 +12,7 @@ import datetime
 loop = asyncio.get_event_loop()
 app = Flask(__name__)
 CORS(app)
+
 
 appId = 't4KsGHvY'
 talkJSSecretKey = 'sk_test_hr35P6vuhJ5x7UVN8jqv3wB3WLIUX5DB'
@@ -66,9 +67,10 @@ def test():
 @app.route("/uploadPDF", methods= ['POST'])
 def uploadPDF():
    if request.method == 'POST':
-      print('upload pdf entered')
-      # file = request.files['the_file']
-      # file.save(f"/server/uploads/{secure_filename(file.filename)}")
+      file = request.files['the_file']
+
+      print("here is the file we wan to save:", file)
+      file.save(f"server/uploads/{secure_filename(file.filename)}")
 
       return 'upload pdf entered'
    else:
