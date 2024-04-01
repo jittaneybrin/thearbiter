@@ -49,8 +49,5 @@ def get_faiss_db():
     db = FAISS.from_documents(docs_for_faiss, embeddings_model)
     return db
 
-# chess_faiss_db = get_faiss_db()
-# test(chess_faiss_db)
-
-new_game_index(es_client, r'uploads/supported_games/chess.pdf', index='chess22')
-
+chess_faiss_db = get_faiss_db()
+test(chess_faiss_db)
