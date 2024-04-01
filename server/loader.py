@@ -1,33 +1,21 @@
 
 import settings as settings
-from elasticsearch import Elasticsearch
-
-#for html requests and html parsing
+import elastic_search as elastic_search 
+from elasticsearch.helpers import bulk
+import embs as embs
+import datetime
 import requests
 from bs4 import BeautifulSoup
 
-#ES
-from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk
-
-import elastic_search as elastic_search 
-
 TEXT_CHUNK_SIZE = 500
 CHUNK_OVERLAP_SIZE = 100
-
 MAX_SIZE = 15
 
 # URL of the Wikipedia page
 abe_url = 'https://en.wikipedia.org/wiki/Abraham_Lincoln'
 chess_url = 'https://en.wikipedia.org/wiki/Rules_of_chess'
 
-client = Elasticsearch(
-    "https://localhost:9200",
-    ssl_assert_fingerprint = settings.CERT_FINGERPRINT,
-    basic_auth=("elastic", settings.ELASTIC_PASSWORD)
-)
-
-print(f"Connected to ElasticSearch cluster `{client.info().body['cluster_name']}`")
+client = elastic_search.get_client()
 
 # Grab wikipedia html content from source url
 def get_wikipedia_page(url):
@@ -71,6 +59,57 @@ def chunk_paragraph(paragraph, chunk_size, overlap_size):
             text_remaining = text_remaining[chunk_size-overlap_size:]
     return chunks
 
+def new_game_index2(es_client, index, paragraphs):
+    # Define the new elasticsearch index
+    mappings = {
+        "properties": {
+            "content": {
+                "type": "text"
+            },
+            "content_vector": {
+                "type": "dense_vector",
+                "dims": 384,
+                "index": "true",
+                "similarity": "cosine"
+            }
+        }
+    }
+
+    index = "index_" + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+
+    es_client.indices.create(index=index, mappings=mappings)
+
+    # Initialize the embeddings model
+    embeddings_model = embs.initialize_embeddings_model()
+    # embeddings = embeddings_model.embed_documents(docs)
+
+    # Bulk insert the documents into the index
+    operations = []
+    for p  in paragraphs:
+        operations.append({"index": {"_index": index}})
+        doc_object = {
+            "content": p,
+            # Transforming the title into an embedding using the model
+            "content_vector": embeddings_model.embed_documents([p])[0]
+        }
+        operations.append(doc_object)
+    response = es_client.bulk(index=index, operations=operations, refresh=True)
+    inserted = response["items"]
+    print(f"Created index {index} with {len(inserted)} documents")
+
+    return index
+
+
+def get_chess_paragraphs():
+    # Get the Wikipedia page
+    html_content = get_wikipedia_page(chess_url)
+
+    # Extract paragraphs from the Wikipedia page
+    paragraphs, title = extract_paragraphs_and_title(html_content)
+
+    paragraphs = split_paragraphs(paragraphs)
+    return paragraphs
+
 def load_chess():
     # Get the Wikipedia page
     html_content = get_wikipedia_page(chess_url)
@@ -80,14 +119,21 @@ def load_chess():
 
     paragraphs = split_paragraphs(paragraphs)
 
-    index = "chess_index10"
-    game = "Chess"
+    index = "chess_index110"
+    game = "chess"
     try:
-        elastic_search.new_game_index(client, index, game, paragraphs)
+        new_game_index2(client, index, paragraphs)
         print(f"Done Loading {game} into ElasticSearch")
     except Exception as e:
         print(f"Could not create the {game} index. Exception: {e}")
 
-#load_chess()
-# print(elastic_search.query_elastic_search_by_index(client, "chess_index10", "what is a stalemate"))
-
+def load_supported_games():
+    print("in load supported games")
+    supported_games = ["catan", "chess"]
+    for game in supported_games:
+        filedir = rf"uploads/supported_games/{game}.pdf"
+        try:
+            elastic_search.new_game_index(client, filedir, index=game)
+            print(f"Successfully created new Elastic Search index for supported game: {game}")
+        except Exception as e:
+            print(f"Error: Could not create new Elastic Search index for supported game: {game}. Exception: {e}")

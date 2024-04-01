@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from gpt import *
+from loader import load_supported_games
 import elastic_search as elastic_search
 from werkzeug.utils import secure_filename
 from requests import request as req
@@ -18,6 +19,9 @@ conversationId = "sample_conversation"
 
 es_client = elastic_search.get_client()
 print(es_client.info())
+
+#load games from "uploads/supported_games" into ElasticSearch
+load_supported_games()
 
 # TODO: Rearrange the organization of the code
 def getResponse(json): 
