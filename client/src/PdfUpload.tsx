@@ -46,8 +46,8 @@ export function PdfUpload(props: PdfUploadComponentProps) {
         body: formData,
       })
         // TODO: add error handling?
-        .then(res => res.json())
-        .then(json => {
+        .then((res) => res.json())
+        .then((json) => {
           let index = json.index;
           // I don't know what's happening with textFieldValue, but it seems to be blank here.
           // console.log(`Created game ${textFieldValue} with index ${index}`);

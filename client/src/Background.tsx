@@ -5,6 +5,7 @@ import { ChatInterface } from "./ChatInterface";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Logo } from "./Logo";
+import { Message } from "./Message";
 
 export function Background() {
   const [message, setMessage] = useState("");
