@@ -6,6 +6,7 @@ import elastic_search as elastic_search
 from werkzeug.utils import secure_filename
 from requests import request as req
 from json import dumps, loads
+import constants as constants
 
 
 app = Flask(__name__)
@@ -73,9 +74,9 @@ def uploadPDF():
       file = request.files['the_file']
       print(f"User uploaded file: {secure_filename(file.filename)}")
 
-      file.save(f"server/uploads/{secure_filename(file.filename)}")
+      file.save(rf"uploads/{secure_filename(file.filename)}")
 
-      index = elastic_search.new_game_index(es_client, f'server/uploads/{secure_filename(file.filename)}')
+      index = elastic_search.new_game_index(es_client, rf'uploads/{secure_filename(file.filename)}')
 
       response = jsonify({"index": index})
 
@@ -84,6 +85,16 @@ def uploadPDF():
       # TODO: Add error handling
       print('error')
      
+
+@app.route("/getSupportedGames", methods= ['GET'])
+def getSupportedGames():
+    supported_games = constants.supported_games
+    #convert to json
+    games_list = [{"name": game, "index": index} for game, index in supported_games]
+    json_data = {"games": games_list}
+    print(jsonify(json_data))
+    return jsonify(json_data)
+
 
 if __name__ == "__main__":
    app.run(debug=True, use_reloader=False)

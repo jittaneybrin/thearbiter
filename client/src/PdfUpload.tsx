@@ -28,6 +28,7 @@ interface PdfUploadComponentProps {
   handleOpen: () => void;
   handleClose: () => void;
   setTextValue: React.Dispatch<React.SetStateAction<string>>;
+  setIndexValue: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export function PdfUpload(props: PdfUploadComponentProps) {
@@ -52,6 +53,7 @@ export function PdfUpload(props: PdfUploadComponentProps) {
           // I don't know what's happening with textFieldValue, but it seems to be blank here.
           // console.log(`Created game ${textFieldValue} with index ${index}`);
           console.log(`Created index ${index}`);
+          props.setIndexValue(index);
         })
         .catch((error) => {
           console.error("Error uploading file:", error);

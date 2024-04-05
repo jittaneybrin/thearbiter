@@ -1,17 +1,31 @@
 import { ToggleButton, ToggleButtonGroup } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PdfUpload } from "./PdfUpload";
+
+
+interface game {
+  name: string;
+  index: string;
+}
 
 export function FileSelectBox() {
   const [alignment, setAlignment] = React.useState("web");
 
   const [textValue, setTextValue] = React.useState("");
 
-  const [toggleButtons, setToggleButtons] = useState([
-    "chess",
-    "monopoly",
-    "root",
-  ]);
+  const [indexValue, setIndexValue] = React.useState("");
+
+  const [toggleButtons, setToggleButtons] = useState<game[]>([]);
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:5000/getSupportedGames")
+      .then(response => response.json())
+      .then(json => {
+        console.log(json.games);
+        setToggleButtons(json.games);
+      })
+      .catch(error => console.error("Error fetching supported games:", error));
+  }, []);
 
   const handleChange = (
     event: React.MouseEvent<HTMLElement>,
@@ -38,7 +52,7 @@ export function FileSelectBox() {
     setOpen(true);
   };
   const handleClose = () => {
-    const newToggleButtons = [...toggleButtons, `${textValue}`];
+    const newToggleButtons = [...toggleButtons, {name: textValue, index: indexValue}];
     setToggleButtons(newToggleButtons);
     setOpen(false);
   };
@@ -54,9 +68,9 @@ export function FileSelectBox() {
       onChange={handleChange}
       aria-label="Platform"
     >
-      {toggleButtons.map((value, index) => (
-        <ToggleButton key={index} value={value}>
-          {value.charAt(0).toUpperCase() + value.slice(1)}
+      {toggleButtons.length > 1 && toggleButtons.map((game) => (
+        <ToggleButton key={game.index} value={game.name}>
+          {game.name ? game.name.charAt(0).toUpperCase() + game.name.slice(1) : ""}
         </ToggleButton>
       ))}
       <ToggleButton value="add-pdf">
@@ -64,6 +78,7 @@ export function FileSelectBox() {
           handleOpen={handleOpen}
           handleClose={handleClose}
           setTextValue={setTextValue}
+          setIndexValue={setIndexValue}
         />
       </ToggleButton>
     </ToggleButtonGroup>
