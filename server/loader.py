@@ -6,6 +6,7 @@ import embs as embs
 import datetime
 import requests
 from bs4 import BeautifulSoup
+import constants as constants
 
 TEXT_CHUNK_SIZE = 500
 CHUNK_OVERLAP_SIZE = 100
@@ -99,7 +100,6 @@ def new_game_index2(es_client, index, paragraphs):
 
     return index
 
-
 def get_chess_paragraphs():
     # Get the Wikipedia page
     html_content = get_wikipedia_page(chess_url)
@@ -127,13 +127,14 @@ def load_chess():
     except Exception as e:
         print(f"Could not create the {game} index. Exception: {e}")
 
+#loads in supported games into ElasticSearch database
 def load_supported_games():
-    print("in load supported games")
-    supported_games = ["catan", "chess"]
-    for game in supported_games:
+    print("Attempting to load in supported games.")
+    supported_games = constants.supported_games
+    for game, index in supported_games:
         filedir = rf"uploads/supported_games/{game}.pdf"
         try:
-            elastic_search.new_game_index(client, filedir, index=game)
-            print(f"Successfully created new Elastic Search index for supported game: {game}")
+            elastic_search.new_game_index(client, filedir, index=index)
+            print(f"Successfully created new Elastic Search index for supported game: {game}, with index: {index}")
         except Exception as e:
             print(f"Error: Could not create new Elastic Search index for supported game: {game}. Exception: {e}")

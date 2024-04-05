@@ -1,0 +1,1 @@
+supported_games = [('chess', 'chess_supported_index'), ('catan', 'catan_supported_index')]
