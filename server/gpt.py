@@ -11,11 +11,12 @@ def get_completion_from_messages(context, question):
         messages=[
             {
                 "role": "system",
-                "content": "With the following context: \"" + context + "\" answer the following question: \"" + question + "\" in 50 words or less."
+                "content": "With the following context: \"" + context + "\" answer the following question: \"" + question + "\" in 50 words or less. Summarize the context in a concise manner and in a way that answers the provided question. Only use information that is in the provided context."
                 },
         ],
         model="gpt-3.5-turbo",
-        max_tokens=100
+        max_tokens=100,
+        temperature=0
     )
     # print(chat_completion)
     return chat_completion.choices[0].message.content
