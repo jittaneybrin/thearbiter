@@ -15,6 +15,8 @@ export function ChatInterface() {
 
   const boxRef = useRef<HTMLDivElement>(null);
 
+  
+
   const scrollToBottom = () => {
     if (boxRef.current) {
       boxRef.current.scrollTop = boxRef.current.scrollHeight;

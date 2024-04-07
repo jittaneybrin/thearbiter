@@ -16,8 +16,8 @@ talkJSSecretKey = 'sk_test_hr35P6vuhJ5x7UVN8jqv3wB3WLIUX5DB'
 basePath = "https://api.talkjs.com"
 conversationId = "sample_conversation"
 
-es_client = elastic_search.get_client()
-print(es_client.info())
+# es_client = elastic_search.get_client()
+# print(es_client.info())
 
 # TODO: Rearrange the organization of the code
 def getResponse(json): 
@@ -28,22 +28,7 @@ def getResponse(json):
     print("response gathered from elasticsearch")
     answer = get_completion_from_messages(context, userQuestion) 
     print("response from gpt api")
-
-    url = "https://api.talkjs.com/v1/t4KsGHvY/conversations/sample_conversation/messages"
-    payload = dumps([
-      {
-        "text": answer,
-        "type": "UserMessage",
-        "sender": "sample_user_sebastian", 
-        "idempotencyKey": json['data']['message']['id']
-      }
-    ])
-    headers = {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer sk_test_hr35P6vuhJ5x7UVN8jqv3wB3WLIUX5DB'
-    }
-
-    req("POST", url, headers=headers, data=payload)
+    return answer 
 
 
 
@@ -51,12 +36,16 @@ def getResponse(json):
 def getAnswer():
     print('get answer entered') 
     if request.method == 'POST':
-      if request.json['data']['message']['senderId'] == 'sample_user_alice':   
-        getResponse(request.json)
-      return '', 200
+      answer = jsonify({'response': 'test answer'}) 
+      answer.headers.add('Access-Control-Allow-Origin', '*')
+      answer.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS')
+
+      return answer
     else:
       # TODO: Add error handling
       print('error')
+
+
 
 @app.route("/test", methods= ['GET'])
 def test():
