@@ -42,7 +42,6 @@ export function Background() {
                 fontWeight: "500",
               }}
             >
-              The Arbiter
             </Box>
 
             <Box
