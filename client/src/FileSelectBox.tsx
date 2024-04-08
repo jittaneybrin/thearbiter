@@ -12,9 +12,7 @@ export function FileSelectBox() {
   const [alignment, setAlignment] = React.useState("web");
   const [gameNameValue, setGameNameValue] = React.useState("");
   const [file, setFile] = useState<File | null>(null);
-
   const [indexValue, setIndexValue] = React.useState("");
-
   const [toggleButtons, setToggleButtons] = useState<game[]>([]);
 
   useEffect(() => {
@@ -48,7 +46,7 @@ export function FileSelectBox() {
 
 
   const handleSubmit = () => {
-    const newToggleButtons = [...toggleButtons, `${gameNameValue}`];
+    const newToggleButtons = [...toggleButtons, {name: `${gameNameValue}`, index: `${indexValue}`}];
 
     setToggleButtons(newToggleButtons);
 
