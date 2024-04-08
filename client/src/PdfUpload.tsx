@@ -25,52 +25,38 @@ const modalStyle = {
 };
 
 interface PdfUploadComponentProps {
-  handleOpen: () => void;
-  handleClose: () => void;
-  setTextValue: React.Dispatch<React.SetStateAction<string>>;
-  setIndexValue: React.Dispatch<React.SetStateAction<string>>;
+  handleSubmit: () => void;
+  setGameNameValue: React.Dispatch<React.SetStateAction<string>>;
+  setFile: React.Dispatch<React.SetStateAction<File | null>>;
 }
 
 export function PdfUpload(props: PdfUploadComponentProps) {
   const [open, setOpen] = React.useState(false);
   const [textFieldValue, setTextFieldValue] = React.useState("");
 
+  let file;
+  // call this function when file is uploaded
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
-    if (file) {
-      console.log(file);
-      const formData = new FormData();
-      formData.append("the_file", file);
-
-      fetch("http://127.0.0.1:5000/uploadPDF", {
-        method: "POST",
-        body: formData,
-      })
-        // TODO: add error handling?
-        .then(res => res.json())
-        .then(json => {
-          let index = json.index;
-          // I don't know what's happening with textFieldValue, but it seems to be blank here.
-          // console.log(`Created game ${textFieldValue} with index ${index}`);
-          console.log(`Created index ${index}`);
-          props.setIndexValue(index);
-        })
-        .catch((error) => {
-          console.error("Error uploading file:", error);
-        });
-    }
+    props.setFile(file);
   };
 
+  //Open modal
   const handleOpen = () => {
     setOpen(true);
-    props.handleOpen();
   };
 
+  //Close modal
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  //track textbox value, call setter in parent
   const handleTextFieldChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setTextFieldValue(event.target.value);
-    props.setTextValue(event.target.value);
+    props.setGameNameValue(event.target.value);
   };
 
   return (
@@ -78,7 +64,7 @@ export function PdfUpload(props: PdfUploadComponentProps) {
       <button onClick={handleOpen}>
         <FontAwesomeIcon icon={faPlus} />
       </button>
-      <Modal open={open} onClose={props.handleClose}>
+      <Modal open={open} onClose={handleClose}>
         <Box sx={modalStyle}>
           <Typography variant="h6" component="h2">
             Upload a file to add a new game.
@@ -100,7 +86,7 @@ export function PdfUpload(props: PdfUploadComponentProps) {
               justifyContent: "end",
             }}
           >
-            <button onClick={props.handleClose}>Submit</button>
+            <button onClick={props.handleSubmit}>Submit</button>
           </Box>
         </Box>
       </Modal>

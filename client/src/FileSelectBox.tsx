@@ -10,11 +10,9 @@ interface game {
 
 export function FileSelectBox() {
   const [alignment, setAlignment] = React.useState("web");
-
-  const [textValue, setTextValue] = React.useState("");
-
+  const [gameNameValue, setGameNameValue] = React.useState("");
+  const [file, setFile] = useState<File | null>(null);
   const [indexValue, setIndexValue] = React.useState("");
-
   const [toggleButtons, setToggleButtons] = useState<game[]>([]);
 
   useEffect(() => {
@@ -46,15 +44,31 @@ export function FileSelectBox() {
     p: 4,
   };
 
-  const [open, setOpen] = React.useState(false);
 
-  const handleOpen = () => {
-    setOpen(true);
-  };
-  const handleClose = () => {
-    const newToggleButtons = [...toggleButtons, {name: textValue, index: indexValue}];
+  const handleSubmit = () => {
+    const newToggleButtons = [...toggleButtons, {name: `${gameNameValue}`, index: `${indexValue}`}];
+
     setToggleButtons(newToggleButtons);
-    setOpen(false);
+
+    //send file here
+    if (file) {
+      const formData = new FormData();
+      formData.append("the_file", file);
+      fetch("http://127.0.0.1:5000/uploadPDF", {
+        method: "POST",
+        body: formData,
+      })
+        .then((res) => res.json())
+        .then((json) => {
+          let index = json.index;
+          // I don't know what's happening with textFieldValue, but it seems to be blank here.
+          // console.log(`Created game ${textFieldValue} with index ${index}`);
+          console.log(`Created index ${index}`);
+        })
+        .catch((error) => {
+          console.error("Error uploading file:", error);
+        });
+    }
   };
 
   return (
@@ -75,10 +89,9 @@ export function FileSelectBox() {
       ))}
       <ToggleButton value="add-pdf">
         <PdfUpload
-          handleOpen={handleOpen}
-          handleClose={handleClose}
-          setTextValue={setTextValue}
-          setIndexValue={setIndexValue}
+          handleSubmit={handleSubmit}
+          setGameNameValue={setGameNameValue}
+          setFile={setFile}
         />
       </ToggleButton>
     </ToggleButtonGroup>
