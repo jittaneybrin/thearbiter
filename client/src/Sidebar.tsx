@@ -1,7 +1,11 @@
 import { Box } from "@mui/material";
-import { FileSelectBox } from "./FileSelectBox";
+import { FileSelectBox, game } from "./FileSelectBox";
 
-export function Sidebar() {
+interface sidebarComponentProps {
+  setSelectedGame : React.Dispatch<React.SetStateAction<game | undefined>>;
+}
+
+export function Sidebar(props : sidebarComponentProps) {
   return (
     <Box
       sx={{
@@ -11,7 +15,7 @@ export function Sidebar() {
       borderRight={1}
       borderColor={"gray"}
     >
-      <FileSelectBox />
+      <FileSelectBox setSelectedGame={props.setSelectedGame}/>
     </Box>
   );
 }

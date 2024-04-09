@@ -2,20 +2,20 @@ import { Box, Grid } from "@mui/material";
 import theme from "./theme";
 import { Sidebar } from "./Sidebar";
 import { ChatInterface } from "./ChatInterface";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Logo } from "./Logo";
 import { Message } from "./Message";
+import { game } from "./FileSelectBox";
 
 export function Background() {
-  const [message, setMessage] = useState("");
-
-  const [uploadOpen, setUploadOpen] = useState(false);
+  
+  const [selectedGame, setSelectedGame] = React.useState<game>();
 
   return (
     <Grid container spacing={0}>
       <Grid xs={1.5}>
-        <Sidebar />
+        <Sidebar setSelectedGame={setSelectedGame}/>
       </Grid>
       <Grid xs={10.5}>
         <Box
@@ -61,7 +61,7 @@ export function Background() {
                 paddingBottom: "2%",
               }}
             >
-              <ChatInterface />
+              <ChatInterface selectedGame={selectedGame}/>
             </Box>
           </Box>
         </Box>
