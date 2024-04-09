@@ -83,7 +83,7 @@ def new_game_index(es_client, pdf_path, index=None):
 
 
 #queries elastic search index for relevant text chunks
-def query_elastic_search_by_index(es_client, index, user_question, hits=10):    
+def query_elastic_search_by_index(es_client, index, user_question, hits=3):    
     embeddings_model = embs.initialize_embeddings_model()    
     embedded_question = embeddings_model.embed_documents([user_question])[0]
 
@@ -98,15 +98,12 @@ def query_elastic_search_by_index(es_client, index, user_question, hits=10):
         },
     )
 
-    # print("query results")
-    # print(response)
-
     hits = response['hits']['hits']
-    contexts = hits[0]['_source']['content']
+    contexts = []
     # contexts = []
     for hit in hits: 
         context = hit['_source']['content']
-        print("Context from ES:", context)
-        #contexts.append(context)
+        #print("Context from ES:", context)
+        contexts.append(context)
     
     return contexts

@@ -6,12 +6,18 @@ client = OpenAI(
     api_key = API_KEY
 )
 
-def get_completion_from_messages(context, question):
+def get_completion_from_messages(contexts, question):
+
+    content = "With the following context: \""
+    for idx, context in enumerate(contexts):
+        content += f"context {idx+1}: {context} "
+    content += f"\" answer the following question: \"{question}\" in 50 words or less."
+
     chat_completion = client.chat.completions.create(
         messages=[
             {
                 "role": "system",
-                "content": "With the following context: \"" + context + "\" answer the following question: \"" + question + "\" in 50 words or less."
+                "content": content
                 },
         ],
         model="gpt-3.5-turbo",

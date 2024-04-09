@@ -14,7 +14,7 @@ def test(faiss_db):
     userQuestion = "How do I perform a castle?"
 
     #hard coded chess index
-    index = 'index_20240327104701'
+    index = 'chess_supported_index'
     
     start_time_es = time.time()
     context = query_elastic_search_by_index(es_client, index, userQuestion)
@@ -29,19 +29,32 @@ def test(faiss_db):
     print("Time taken by Faiss:", end_time_es - start_time_es, "seconds")
     print("response gathered from Faiss")
 
-    print("\nBelow is the most relevant answer using FAISS vector search: ")
-    print("\nTEXT 1:")
-    print(searchDocs[0].page_content)
+    # print("\nBelow is the most relevant answer using FAISS vector search: ")
+    # print("\nTEXT 1:")
+    # #print(searchDocs[0].page_content)
 
-def get_faiss_db():
+def get_faiss_db(pdf_path):
+    reader = PdfReader(pdf_path)
+
+    pdf_content = ""
+    for page in reader.pages:
+        text = page.extract_text()
+        pdf_content += text
+
+    text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
+        chunk_size=512, chunk_overlap=256
+    )
+    docs = text_splitter.create_documents([pdf_content])
+
     paragraphs = loader.get_chess_paragraphs()
     #create documents for Faiss
     metadata = {
         'date_time': datetime.datetime.now()
     }
+
     docs_for_faiss = []
-    for p in paragraphs:
-        docs_for_faiss.append(d.Document(page_content=p, metadata=metadata))
+    for doc in docs:
+        docs_for_faiss.append(d.Document(page_content=doc.page_content, metadata=metadata))
 
     #Set up text embedding model:
     embeddings_model = embs.initialize_embeddings_model()
@@ -49,5 +62,7 @@ def get_faiss_db():
     db = FAISS.from_documents(docs_for_faiss, embeddings_model)
     return db
 
-chess_faiss_db = get_faiss_db()
+
+path = rf'server/uploads/supported_games/chess.pdf'
+chess_faiss_db = get_faiss_db(path)
 test(chess_faiss_db)
