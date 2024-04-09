@@ -35,7 +35,6 @@ export function FileSelectBox(props : fileSelectBoxComponentProps) {
     newAlignment: string
   ) => {
     setAlignment(newAlignment); 
-    // HERE CALL setSelectedGame(<selected game value (game name + index)>);
   };
 
   const modalStyle = {
@@ -88,7 +87,13 @@ export function FileSelectBox(props : fileSelectBoxComponentProps) {
       aria-label="Platform"
     >
       {toggleButtons.length > 1 && toggleButtons.map((game) => (
-        <ToggleButton key={game.index} value={game.name}>
+        <ToggleButton key={game.index} value={game.name} onClick={() => {
+          const selectedGame: game = {
+            name: game.name,
+            index: game.index
+          };
+          props.setSelectedGame(selectedGame);
+        }}>
           {game.name ? game.name.charAt(0).toUpperCase() + game.name.slice(1) : ""}
         </ToggleButton>
       ))}
