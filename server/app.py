@@ -15,7 +15,7 @@ es_client = elastic_search.get_client()
 print(es_client.info())
 
 #load games from "uploads/supported_games" into ElasticSearch
-load_supported_games()
+load_supported_games(es_client)
 
 # TODO: Rearrange the organization of the code
 def getResponse(json): 
@@ -38,12 +38,12 @@ def getAnswer():
    print("User question:", userQuestion)
 
    #Query elastic search for matching game context
-   context = elastic_search.query_elastic_search_by_index(es_client, index, userQuestion)
-   print("response gathered from elasticsearch. Context:", context)
+   contexts = elastic_search.query_elastic_search_by_index(es_client, index, userQuestion, hits=2)
+   print("Response gathered from elasticsearch. Contexts:", contexts)
 
    #get answer from gpt api
-   answer = get_completion_from_messages(context, userQuestion) 
-   print("response from gpt api: ", answer)
+   answer = get_completion_from_messages(contexts, userQuestion) 
+   print("Response from GPT:", answer)
 
    answer = jsonify({'response': answer}) 
    answer.headers.add('Access-Control-Allow-Origin', '*')
