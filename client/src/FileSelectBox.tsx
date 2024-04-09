@@ -46,10 +46,6 @@ export function FileSelectBox() {
 
 
   const handleSubmit = () => {
-    const newToggleButtons = [...toggleButtons, {name: `${gameNameValue}`, index: `${indexValue}`}];
-
-    setToggleButtons(newToggleButtons);
-
     //send file here
     if (file) {
       const formData = new FormData();
@@ -64,6 +60,8 @@ export function FileSelectBox() {
           // I don't know what's happening with textFieldValue, but it seems to be blank here.
           // console.log(`Created game ${textFieldValue} with index ${index}`);
           console.log(`Created index ${index}`);
+          const newToggleButtons = [...toggleButtons, {name: `${gameNameValue}`, index: `${index}`}];
+          setToggleButtons(newToggleButtons);
         })
         .catch((error) => {
           console.error("Error uploading file:", error);
