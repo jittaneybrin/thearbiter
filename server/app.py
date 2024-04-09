@@ -8,18 +8,11 @@ from requests import request as req
 from json import dumps, loads
 import constants as constants
 
-
 app = Flask(__name__)
 CORS(app)
 
-
-appId = 't4KsGHvY'
-talkJSSecretKey = 'sk_test_hr35P6vuhJ5x7UVN8jqv3wB3WLIUX5DB'
-basePath = "https://api.talkjs.com"
-conversationId = "sample_conversation"
-
-# es_client = elastic_search.get_client()
-# print(es_client.info())
+es_client = elastic_search.get_client()
+print(es_client.info())
 
 #load games from "uploads/supported_games" into ElasticSearch
 load_supported_games()
@@ -36,19 +29,28 @@ def getResponse(json):
     return answer 
 
 
-
 @app.route("/getAnswer", methods= ['POST'])
 def getAnswer():
-    print('get answer entered') 
-    if request.method == 'POST':
-      answer = jsonify({'response': 'test answer'}) 
-      answer.headers.add('Access-Control-Allow-Origin', '*')
-      answer.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS')
+   userQuestion = request.args['prompt']
+   #TODO front end needs to send selected game index 
+   #index = request.args['index']
+   index = 'index_20240323162803'
+   print("User question:", userQuestion)
 
-      return answer
-    else:
-      # TODO: Add error handling
-      print('error')
+   #Query elastic search for matching game context
+   context = elastic_search.query_elastic_search_by_index(es_client, index, userQuestion)
+   print("response gathered from elasticsearch. Context:", context)
+
+   #get answer from gpt api
+   answer = get_completion_from_messages(context, userQuestion) 
+   print("response from gpt api: ", answer)
+
+   answer = jsonify({'response': answer}) 
+   answer.headers.add('Access-Control-Allow-Origin', '*')
+   answer.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS')
+   
+   #TODO, return actual answer!
+   return jsonify({'response': 'answer'}) 
 
 
 
@@ -56,6 +58,7 @@ def getAnswer():
 def test():
    index = elastic_search.new_game_index(es_client, 'server/uploads/root.pdf')
    return index
+
 
 @app.route("/uploadPDF", methods= ['POST'])
 def uploadPDF():
@@ -75,6 +78,7 @@ def uploadPDF():
       print('error')
      
 
+#Returns a list of supported games and their indexes to the front end to be displayed on the sidebar
 @app.route("/getSupportedGames", methods= ['GET'])
 def getSupportedGames():
     supported_games = constants.supported_games
