@@ -9,7 +9,6 @@ export function Sidebar() {
         color: "white",
       }}
       borderRight={1}
-      borderRadius="4px"
       borderColor={"gray"}
     >
       <FileSelectBox />

@@ -32,11 +32,6 @@ export function TextEntry(props: TextEntryComponentProps) {
         let newMessage = { message: response.data.response, id: 0 }
         let prevMessages = props.messages;
         props.setMessages(prevMessages => [...prevMessages, newMessage]);
-
-        // props.setMessages(props.messages => [
-        //   ...props.messages,
-        //   { message: response.data.response, id: 0 },
-        // ]);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -75,6 +70,7 @@ export function TextEntry(props: TextEntryComponentProps) {
         backgroundColor: "#ECECEC",
         borderBottomLeftRadius: "15px",
         borderBottomRightRadius: "15px",
+        marginTop: "5px",
       }}
     >
       <TextField
@@ -82,6 +78,7 @@ export function TextEntry(props: TextEntryComponentProps) {
         value={textFieldValue}
         onChange={(e) => setTextFieldValue(e.target.value)}
         onKeyDown={handleKeyDown}
+        placeholder="Ask a question and press enter..."
         variant="standard"
       />
     </Box>
