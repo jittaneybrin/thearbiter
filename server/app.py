@@ -33,8 +33,9 @@ def getResponse(json):
 def getAnswer():
    userQuestion = request.args['prompt']
    #TODO front end needs to send selected game index 
-   #index = request.args['index']
-   index = 'index_20240323162803'
+   index = request.args['index']
+   #index = 'index_20240323162803'
+   print("user index:", index)
    print("User question:", userQuestion)
 
    #Query elastic search for matching game context
@@ -50,7 +51,7 @@ def getAnswer():
    answer.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS')
    
    #TODO, return actual answer!
-   return jsonify({'response': 'answer'}) 
+   return answer
 
 
 

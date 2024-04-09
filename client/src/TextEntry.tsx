@@ -3,8 +3,10 @@ import { borderRadius } from "@mui/system";
 import React from "react";
 import { MessageObject } from "./ChatInterface";
 import axios from "axios";
+import { game } from "./FileSelectBox";
 
 interface TextEntryComponentProps {
+  selectedGame : game | undefined;
   messages: MessageObject[];
   setMessages: React.Dispatch<React.SetStateAction<MessageObject[]>>;
 }
@@ -14,12 +16,11 @@ interface TextEntryComponentProps {
 
 export function TextEntry(props: TextEntryComponentProps) {
 
-
   function postQuestion(myQuestion : string){
     console.log("postquestion");
     // Make a POST request to the Flask backend
     axios
-      .post("http://127.0.0.1:5000/getAnswer?prompt=" + myQuestion, {
+      .post(`http://127.0.0.1:5000/getAnswer?prompt=${myQuestion}&index=${props.selectedGame?.index}`, {
         headers: {
           "Access-Control-Allow-Origin": "*",
           "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS"

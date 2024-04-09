@@ -3,12 +3,17 @@ import React, { useState, useEffect } from "react";
 import { PdfUpload } from "./PdfUpload";
 
 
-interface game {
+export interface game {
   name: string;
   index: string;
 }
 
-export function FileSelectBox() {
+interface fileSelectBoxComponentProps {
+  setSelectedGame : React.Dispatch<React.SetStateAction<game | undefined>>;
+}
+// const supportedGames = [{game: "chess", index: "0"}, {game: "catan", index: "1"}]
+
+export function FileSelectBox(props : fileSelectBoxComponentProps) {
   const [alignment, setAlignment] = React.useState("web");
   const [gameNameValue, setGameNameValue] = React.useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -29,7 +34,7 @@ export function FileSelectBox() {
     event: React.MouseEvent<HTMLElement>,
     newAlignment: string
   ) => {
-    setAlignment(newAlignment);
+    setAlignment(newAlignment); 
   };
 
   const modalStyle = {
@@ -81,7 +86,13 @@ export function FileSelectBox() {
       aria-label="Platform"
     >
       {toggleButtons.length > 1 && toggleButtons.map((game) => (
-        <ToggleButton key={game.index} value={game.name}>
+        <ToggleButton key={game.index} value={game.name} onClick={() => {
+          const selectedGame: game = {
+            name: game.name,
+            index: game.index
+          };
+          props.setSelectedGame(selectedGame);
+        }}>
           {game.name ? game.name.charAt(0).toUpperCase() + game.name.slice(1) : ""}
         </ToggleButton>
       ))}
