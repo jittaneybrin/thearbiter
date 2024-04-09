@@ -26,11 +26,8 @@ export function Background() {
           <Box
             sx={{
               backgroundColor: theme.palette.secondary.light,
-              height: "93%",
-              width: "93%",
-              borderRadius: "20px",
-              marginTop: "3.5%",
-              marginLeft: "3.5%",
+              height: "100%",
+              width: "100%",
               display: "flex",
               flexDirection: "column",
             }}

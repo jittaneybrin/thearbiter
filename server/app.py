@@ -18,8 +18,8 @@ talkJSSecretKey = 'sk_test_hr35P6vuhJ5x7UVN8jqv3wB3WLIUX5DB'
 basePath = "https://api.talkjs.com"
 conversationId = "sample_conversation"
 
-es_client = elastic_search.get_client()
-print(es_client.info())
+# es_client = elastic_search.get_client()
+# print(es_client.info())
 
 #load games from "uploads/supported_games" into ElasticSearch
 load_supported_games()
