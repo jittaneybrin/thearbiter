@@ -4,7 +4,7 @@ from gpt import *
 from loader import load_supported_games
 import elastic_search as elastic_search
 from werkzeug.utils import secure_filename
-import constants as constants
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -18,9 +18,7 @@ load_supported_games(es_client)
 @app.route("/getAnswer", methods= ['POST'])
 def getAnswer():
    userQuestion = request.args['prompt']
-   #TODO front end needs to send selected game index 
    index = request.args['index']
-   #index = 'index_20240323162803'
    print("user index:", index)
    print("User question:", userQuestion)
 
@@ -48,19 +46,26 @@ def uploadPDF():
    #load file into ElasticSearch, save the new index
    index = elastic_search.new_game_index(es_client, rf'uploads/{secure_filename(file.filename)}')
    response = jsonify({"index": index})
-   
+
    return response
      
 
 #Returns a list of supported games and their indexes to the front end to be displayed on the sidebar
 @app.route("/getSupportedGames", methods= ['GET'])
 def getSupportedGames():
-    supported_games = constants.supported_games
-    #convert to json
-    games_list = [{"name": game, "index": index} for game, index in supported_games]
-    json_data = {"games": games_list}
-    print(jsonify(json_data))
-    return jsonify(json_data)
+   games_list = []
+   supported_games_dir = rf"uploads/supported_games"
+   #gather list of game names from supported_game directory
+   for filename in os.listdir(supported_games_dir):
+      if filename.endswith(".pdf"):
+         game_name = os.path.splitext(filename)[0]  #remove .pdf extension
+         index = game_name.lower().replace(" ", "_") + "_default_index"  
+         games_list.append({"name": game_name, "index": index})
+
+   #convert to json
+   json_data = {"games": games_list}
+   print(jsonify(json_data))
+   return jsonify(json_data)
 
 
 if __name__ == "__main__":

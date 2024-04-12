@@ -21,6 +21,9 @@ def get_client():
     print(f"Connected to ElasticSearch cluster `{client.info().body['cluster_name']}`")
     return client
 
+def index_already_exists(es_client, index):
+    return es_client.indices.exists(index=index)
+
 def new_game_index(es_client, pdf_path, index=None):
     try:
         reader = PdfReader(pdf_path)
