@@ -4,31 +4,17 @@ from gpt import *
 from loader import load_supported_games
 import elastic_search as elastic_search
 from werkzeug.utils import secure_filename
-from requests import request as req
-from json import dumps, loads
 import constants as constants
 
 app = Flask(__name__)
 CORS(app)
 
+#Start up code
 es_client = elastic_search.get_client()
-print(es_client.info())
-
-#load games from "uploads/supported_games" into ElasticSearch
 load_supported_games(es_client)
 
-# TODO: Rearrange the organization of the code
-def getResponse(json): 
-    del json['createdAt']
-    userQuestion = json['data']['message']['text']
-    index = 'index_20240323162803'
-    context = elastic_search.query_elastic_search_by_index(es_client, index, userQuestion)
-    print("response gathered from elasticsearch")
-    answer = get_completion_from_messages(context, userQuestion) 
-    print("response from gpt api")
-    return answer 
-
-
+#Gathers user question and corresponding game from front end, queries ElasticSearch for context, then GPT for an answer
+#and returns the answer
 @app.route("/getAnswer", methods= ['POST'])
 def getAnswer():
    userQuestion = request.args['prompt']
@@ -50,33 +36,20 @@ def getAnswer():
    answer.headers.add('Access-Control-Allow-Origin', '*')
    answer.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS')
    
-   #TODO, return actual answer!
    return answer
 
-
-
-@app.route("/test", methods= ['GET'])
-def test():
-   index = elastic_search.new_game_index(es_client, 'server/uploads/root.pdf')
-   return index
-
-
+#Handles PDF upload from the front end, returns newly created ElasticSearch index
 @app.route("/uploadPDF", methods= ['POST'])
 def uploadPDF():
-   if request.method == 'POST':
-      file = request.files['the_file']
-      print(f"User uploaded file: {secure_filename(file.filename)}")
+   file = request.files['the_file']
+   print(f"User uploaded file: {secure_filename(file.filename)}")
+   file.save(rf"uploads/{secure_filename(file.filename)}")
 
-      file.save(rf"uploads/{secure_filename(file.filename)}")
-
-      index = elastic_search.new_game_index(es_client, rf'uploads/{secure_filename(file.filename)}')
-
-      response = jsonify({"index": index})
-
-      return response
-   else:
-      # TODO: Add error handling
-      print('error')
+   #load file into ElasticSearch, save the new index
+   index = elastic_search.new_game_index(es_client, rf'uploads/{secure_filename(file.filename)}')
+   response = jsonify({"index": index})
+   
+   return response
      
 
 #Returns a list of supported games and their indexes to the front end to be displayed on the sidebar
