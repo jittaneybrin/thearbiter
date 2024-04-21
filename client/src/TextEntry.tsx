@@ -6,33 +6,34 @@ import axios from "axios";
 import { game } from "./FileSelectBox";
 
 interface TextEntryComponentProps {
-  selectedGame : game | undefined;
+  selectedGame: game | undefined;
   messages: MessageObject[];
   setMessages: React.Dispatch<React.SetStateAction<MessageObject[]>>;
 }
 
-
-
-
 export function TextEntry(props: TextEntryComponentProps) {
-
-  function postQuestion(myQuestion : string){
-    console.log("postquestion");
+  function postQuestion(myQuestion: string) {
+    let prevMessages = props.messages;
+    let newMessage = { message: "(≧︿≦)", id: 0 };
+    props.setMessages((prevMessages) => [...prevMessages, newMessage]);
     // Make a POST request to the Flask backend
     axios
-      .post(`http://127.0.0.1:5000/getAnswer?prompt=${myQuestion}&index=${props.selectedGame?.index}`, {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS"
-        },
-        responseType: "json"
-      })
-      .then(response => {
-        console.log(props.messages)
+      .post(
+        `http://127.0.0.1:5000/getAnswer?prompt=${myQuestion}&index=${props.selectedGame?.index}`,
+        {
+          headers: {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+          },
+          responseType: "json",
+        }
+      )
+      .then((response) => {
+        props.setMessages((prevMessages) => prevMessages.slice(0, -1));
 
-        let newMessage = { message: response.data.response, id: 0 }
         let prevMessages = props.messages;
-        props.setMessages(prevMessages => [...prevMessages, newMessage]);
+        let newMessage = { message: response.data.response, id: 0 };
+        props.setMessages((prevMessages) => [...prevMessages, newMessage]);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
@@ -41,16 +42,15 @@ export function TextEntry(props: TextEntryComponentProps) {
 
   async function setClientMessage() {
     // client
-    let newMessage = { message: textFieldValue, id: 1 }
+    let newMessage = { message: textFieldValue, id: 1 };
     let prevMessages = props.messages;
-    props.setMessages(prevMessages => [...prevMessages, newMessage])
+    props.setMessages((prevMessages) => [...prevMessages, newMessage]);
   }
 
   const [textFieldValue, setTextFieldValue] = React.useState("");
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
-
       setClientMessage().then(() => {
         // Once setMessages is fully executed, call postQuestion
         postQuestion(textFieldValue);
@@ -59,7 +59,6 @@ export function TextEntry(props: TextEntryComponentProps) {
     }
   };
 
-  
   return (
     <Box
       sx={{
