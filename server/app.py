@@ -42,9 +42,9 @@ def bggapi(gameId):
     forumJson = parse(response.content)
     numOfThreads = int(forumJson["forum"]["@numthreads"])
     print(numOfThreads)
+    print(ceil(numOfThreads/50))
     
-    # for i in range(ceil(numOfThreads/50)):
-    for i in range(3):
+    for i in range(ceil(numOfThreads/50)):
       url = "https://boardgamegeek.com/xmlapi2/forum?id="+str(id)+"&page="+str(i)
       response = req("GET", url)
       forumJson = parse(response.content)
@@ -80,6 +80,8 @@ def getResponse(json):
     userQuestion = json['data']['message']['text']
     index = 'index_20240323162803'
     context = elastic_search.query_elastic_search_by_index(es_client, index, userQuestion)
+    game_id = 13
+    forum_context = elastic_search.query_elastic_search_by_index_bgg(es_client, game_id, userQuestion)
     print(context)
     print("response gathered from elasticsearch")
     answer = get_completion_from_messages(context, userQuestion) 
@@ -88,7 +90,7 @@ def getResponse(json):
     url = "https://api.talkjs.com/v1/t4KsGHvY/conversations/sample_conversation/messages"
     payload = dumps([
       {
-        "text": answer,
+        "text": answer + '\n' + forum_context,
         "type": "UserMessage",
         "sender": "sample_user_sebastian", 
         "idempotencyKey": json['data']['message']['id']
@@ -122,7 +124,7 @@ def test():
 @app.route("/testbggelasticsearch", methods = ['GET'])
 def testbggelasticsearch():
     if request.method == 'GET':
-      id = 237182
+      id = 13
       listOfAnswers, listOfQuestions = bggapi(id)
       elastic_search.new_forum(es_client, listOfQuestions, listOfAnswers, id)    
     return "done"   
@@ -130,7 +132,7 @@ def testbggelasticsearch():
 @app.route("/testbggquery", methods = ['GET'])
 def testbggquery():
     if request.method == 'GET':
-      id = 237182
+      id = 171
       question = "can the vagabond give aid to the lord of the hundreds and take an item from the hoard?"
       elastic_search.query_elastic_search_by_index_bgg(es_client, id, question)
     return "done"   
