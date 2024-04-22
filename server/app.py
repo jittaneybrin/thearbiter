@@ -1,10 +1,13 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from gpt import *
 from loader import load_supported_games
 import elastic_search as elastic_search
 from werkzeug.utils import secure_filename
 import os
+import datetime
+
+import pdf_parsing
 
 app = Flask(__name__)
 CORS(app)
@@ -28,18 +31,26 @@ def getAnswer():
    for context in contexts:
       print(f"Confidence: {context['confidence']} \nContext: {context['text']}\n")
 
+   # Get the highest confidence value from the contexts
    max_confidence = max(contexts, key=lambda x:x['confidence'])['confidence']
    print("Max confidence:", max_confidence)
 
+   # output path of the highlighted context image
+   image_output_path = rf"images/{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}.png"
 
+   # Only send the question to GPT if the confidence is "high enough"
    if max_confidence > 0.65:
       #get answer from gpt api
       answer = get_completion_from_messages(contexts, userQuestion) 
       print("Response from GPT:", answer)
+
+      es_index = es_client.indices.get(index=index)
+      document_path = es_index[index]['mappings']['_meta']['document_path']
+      pdf_parsing.highlight_block(document_path, contexts[0], image_output_path)
    else: 
       answer = "I'm sorry, I don't know the answer to that question \no(╥﹏╥)o"
 
-   answer = jsonify({'response': answer, 'confidence': contexts[0]['confidence']}) 
+   answer = jsonify({'response': answer, 'source_image_route': image_output_path, 'confidence': contexts[0]['confidence']}) 
    answer.headers.add('Access-Control-Allow-Origin', '*')
    answer.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS')
    
@@ -75,6 +86,10 @@ def getSupportedGames():
    json_data = {"games": games_list}
    print(jsonify(json_data))
    return jsonify(json_data)
+
+# @app.route("/images/<filename>", methods=['GET'])
+# def get_image(filename):
+#    return send_file(, filename)
 
 
 if __name__ == "__main__":

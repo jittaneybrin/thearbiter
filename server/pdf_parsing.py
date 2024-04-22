@@ -1,6 +1,7 @@
 import fitz
 import re
 
+from fitz.utils import getColor
 
 # Initial text extraction via PyMuPDF blocks
 def get_text_blocks_from_doc(document_name):
@@ -104,3 +105,44 @@ def quad_to_tuple(quad):
 
 def tuple_to_quad(tuple):
     return fitz.Quad([(x, y) for x, y in tuple])
+
+
+# Highlight block of text in a PDF
+def highlight_block(pdf_path, block, output_path=None):
+    try: 
+        doc = fitz.open(pdf_path) # open a document
+    except Exception:
+        raise Exception(f"File at path: {pdf_path} could not be read") 
+
+    # loop through each page and highlight each block of text
+    for i in range(len(block['page'])):
+        shape = doc[block['page'][i]].new_shape()
+
+        # get some initial bounding coordinates to confine the image around
+        x0 = block['coordinates'][0][0][0][0]
+        y0 = block['coordinates'][0][0][0][1]
+        x1 = block['coordinates'][-1][-1][-1][0]
+        y1 = block['coordinates'][-1][-1][-1][1]
+        
+        # highlight each quadrant of text
+        for quad in block['coordinates'][i]:
+            shape.draw_quad(quad)
+
+            # update bounding coordinates if necessary
+            for point in quad:
+                x0 = min(x0, point[0])
+                y0 = min(y0, point[1])
+                x1 = max(x1, point[0])
+                y1 = max(y1, point[1])
+                    
+        shape.finish(fill=getColor("YELLOW"), fill_opacity=0.25, width=0)
+        shape.commit()
+
+    page = doc[block['page'][0]]
+
+    mat = fitz.Matrix(2, 2)  # zoom factor 2 in each direction
+    buffer = 50
+    clip = fitz.Rect(x0 - buffer, y0 - buffer, x1 + buffer, y1 + buffer)  # the area we want
+    pix = page.get_pixmap(dpi=200) # render page to an image
+    pix.save(output_path)  # store image as a PNG        
+    doc.close()

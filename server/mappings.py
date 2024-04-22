@@ -1,5 +1,8 @@
 # structure of elasticsearch indices
 mappings = {
+    "_meta": {
+        "document_path": ""
+    },
     "properties": {
         "text": {
             "type": "text"

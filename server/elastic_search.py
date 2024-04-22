@@ -38,6 +38,8 @@ def new_game_index(es_client, pdf_path, index=None):
     if index is None:
         index = "index_" + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 
+    mappings['_meta']['document_path'] = pdf_path
+
     try:
         es_client.indices.create(index=index, mappings=mappings)
     except Exception as e:
