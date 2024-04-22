@@ -24,13 +24,22 @@ def getAnswer():
 
    #Query elastic search for matching game context
    contexts = elastic_search.query_elastic_search_by_index(es_client, index, userQuestion, hits=2)
-   print("Response gathered from elasticsearch. Contexts:", contexts)
+   print("Response gathered from elasticsearch:")
+   for context in contexts:
+      print(f"Confidence: {context['confidence']} \nContext: {context['text']}\n")
 
-   #get answer from gpt api
-   answer = get_completion_from_messages(contexts, userQuestion) 
-   print("Response from GPT:", answer)
+   max_confidence = max(contexts, key=lambda x:x['confidence'])['confidence']
+   print("Max confidence:", max_confidence)
 
-   answer = jsonify({'response': answer}) 
+
+   if max_confidence > 0.65:
+      #get answer from gpt api
+      answer = get_completion_from_messages(contexts, userQuestion) 
+      print("Response from GPT:", answer)
+   else: 
+      answer = "I'm sorry, I don't know the answer to that question \no(╥﹏╥)o"
+
+   answer = jsonify({'response': answer, 'confidence': contexts[0]['confidence']}) 
    answer.headers.add('Access-Control-Allow-Origin', '*')
    answer.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS')
    
