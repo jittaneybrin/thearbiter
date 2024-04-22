@@ -127,7 +127,7 @@ export function FileSelectBox(props: fileSelectBoxComponentProps) {
           setSnackBarOpen(false);
         }}
         anchorReference="anchorPosition"
-        anchorPosition={{ top: 20, left: 545 }}
+        anchorPosition={{ top: 0, left: 0 }}
       >
         <SnackbarContent message={"Please provide a Game Name with a PDF"} />
       </Popover>
