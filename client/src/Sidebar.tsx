@@ -12,7 +12,7 @@ export function Sidebar(props: sidebarComponentProps) {
         height: "100%",
         color: "white",
         overflowY: "scroll",
-        maxHeight: "500px",
+        maxHeight: "820px",
       }}
       borderRight={1}
       borderColor={"gray"}
