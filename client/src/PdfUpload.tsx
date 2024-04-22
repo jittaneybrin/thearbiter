@@ -43,6 +43,7 @@ export function PdfUpload(props: PdfUploadComponentProps) {
 
   //Open modal
   const handleOpen = () => {
+    props.setGameNameValue("");
     setOpen(true);
   };
 
