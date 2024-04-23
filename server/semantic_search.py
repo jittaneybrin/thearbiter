@@ -153,7 +153,7 @@ def group_by_semantic_threshold_indices(indices_above_thresh, blocks, buffer_siz
     if start_index < len(blocks):
 
         # Add a buffer to the start index if possible
-        start_index, end_index = dynamic_buffer(blocks, buffer_size, max_length, start_index, end_index)
+        start_index, end_index = dynamic_buffer(blocks, buffer_size, max_length, start_index)
 
         group = blocks[start_index:]
         combined_block = group[0]
@@ -170,7 +170,7 @@ def group_by_semantic_threshold_indices(indices_above_thresh, blocks, buffer_siz
 
 
 # expands the buffer window if the group is under the max length
-def dynamic_buffer(blocks, buffer_size, max_length, start_index, end_index):
+def dynamic_buffer(blocks, buffer_size, max_length, start_index, end_index=-1):
     # Check if the length of the group is less than the max length
     if group_length(blocks, start_index, end_index) > max_length:
         # the group is already over the max length, return current indices

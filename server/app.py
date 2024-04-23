@@ -39,16 +39,26 @@ def getAnswer():
    image_output_path = rf"images/{datetime.datetime.now().strftime("%Y%m%d%H%M%S")}.png"
 
    # Only send the question to GPT if the confidence is "high enough"
-   if max_confidence > 0.65:
-      #get answer from gpt api
-      answer = get_completion_from_messages(contexts, userQuestion) 
-      print("Response from GPT:", answer)
+   # if max_confidence > 0.65:
+   #    #get answer from gpt api
+   #    answer = get_completion_from_messages(contexts, userQuestion) 
+   #    print("Response from GPT:", answer)
 
-      es_index = es_client.indices.get(index=index)
-      document_path = es_index[index]['mappings']['_meta']['document_path']
-      pdf_parsing.highlight_block(document_path, contexts[0], image_output_path)
-   else: 
-      answer = "I'm sorry, I don't know the answer to that question \no(╥﹏╥)o"
+   #    es_index = es_client.indices.get(index=index)
+   #    document_path = es_index[index]['mappings']['_meta']['document_path']
+   #    pdf_parsing.highlight_block(document_path, contexts[0], image_output_path)
+   # else: 
+   #    answer = "I'm sorry, I don't know the answer to that question \no(╥﹏╥)o"
+
+   #get answer from gpt api
+   answer = get_completion_from_messages(contexts, userQuestion) 
+   print("Response from GPT:", answer)
+
+   es_index = es_client.indices.get(index=index)
+   document_path = es_index[index]['mappings']['_meta']['document_path']
+   pdf_parsing.highlight_block(document_path, contexts[0], image_output_path)
+   if max_confidence < 0.65:
+      answer = f"[Warning: low confidence ({(max_confidence * 100):.2f} %)]: {answer}"
 
    answer = jsonify({'response': answer, 'source_image_route': image_output_path, 'confidence': contexts[0]['confidence']}) 
    answer.headers.add('Access-Control-Allow-Origin', '*')
