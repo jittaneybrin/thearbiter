@@ -8,10 +8,10 @@ client = OpenAI(
 
 def get_completion_from_messages(contexts, question):
 
-    content = "With the following context: \""
-    for idx, context in enumerate(contexts):
-        content += f"context {idx+1}: {context} "
-    content += f"\" answer the following question: \"{question}\" in 50 words or less."
+    content = "With the following context: \n"
+    for index, context in enumerate(contexts):
+        content += f"context {index+1}: \"{context['text']}\"\n"
+    content += f"Answer the following question as concisely, yet professional as possible: \"{question}\" ."
 
     chat_completion = client.chat.completions.create(
         messages=[

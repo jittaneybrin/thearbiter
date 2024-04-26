@@ -3,6 +3,14 @@ from langchain_community.vectorstores import FAISS
 import langchain.schema.document as d
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
+embeddings = None
+
+def get_embeddings():
+    global embeddings
+    if embeddings is None:
+        embeddings = initialize_embeddings_model()
+    return embeddings
+
 #intialize the embeddings model used to create embeddings
 def initialize_embeddings_model():
     # Define the path to the pre-trained model you want to use
