@@ -10,6 +10,7 @@ Retrieval-agumented generation (RAG) board game chatbot
 
 # Notes
 - The GPT API connection has been disabled. You either need to get your own (and populate the key in settings.py) or find a new method and update the functionality in /server/gpt.py. I do think it needs to be the same gpt-3.5-turbo model if you want it to work immediately. Otherwise, it's probably another small update in the gpt.py file.
+- The report directory includes the PDF of our final report on this project, as well as the LaTeX source files. The report was originally written in Google Docs throughout the semester and transferred over to LaTeX on Overleaf for the final version.
 
 # Project Setup
 ## Installation
